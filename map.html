@@ -35,7 +35,7 @@
 
     let geojsonLayer;
 
-    fetch('zip_service_areas.geojson')
+   fetch('https://jproutyse.github.io/service-area-map/zip_service_areas.geojson')
       .then(res => res.json())
       .then(data => {
         geojsonLayer = L.geoJSON(data, {
