@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Service Area Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; }
+    #map { width: 100%; height: 100%; }
+    #search-container {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    input[type="text"] {
+      width: 200px;
+      padding: 5px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="search-container">
+    <input type="text" id="zipcode-search" placeholder="Enter ZIP code..." />
+  </div>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([36.2, -86.7], 7);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let serviceLayer;
+    const companyColors = {
+      "Company A": "red",
+      "Company B": "blue",
+      "Company C": "green"
+    };
+
+    fetch('https://jproutyse.github.io/service-area-map/zip_service_areas.geojson')
+      .then(res => res.json())
+      .then(data => {
+        serviceLayer = L.geoJSON(data, {
+          style: feature => ({
+            color: companyColors[feature.properties.company] || "gray",
+            weight: 2,
+            fillOpacity: 0.4
+          }),
+          onEachFeature: (feature, layer) => {
+            layer.bindPopup(\`\${feature.properties.zipcode} - \${feature.properties.company}\`);
+          }
+        }).addTo(map);
+      });
+
+    document.getElementById('zipcode-search').addEventListener('keyup', function(e) {
+      if (e.key === 'Enter') {
+        const zip = e.target.value.trim();
+        if (!zip || !serviceLayer) return;
+        let found = false;
+        serviceLayer.eachLayer(layer => {
+          if (layer.feature.properties.zipcode === zip) {
+            map.fitBounds(layer.getBounds());
+            layer.openPopup();
+            found = true;
+          }
+        });
+        if (!found) alert("ZIP code not found in service area.");
+      }
+    });
+  </script>
+</body>
+</html>
