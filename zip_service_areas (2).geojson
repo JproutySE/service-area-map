@@ -1,1 +1,0 @@
-{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-86.7, 36.2], [-86.6, 36.2], [-86.6, 36.3], [-86.7, 36.3], [-86.7, 36.2]]]}, "properties": {"zipcode": "37201", "company": "Company A"}}]}
